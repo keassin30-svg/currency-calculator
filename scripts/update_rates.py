@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch official CFETS RMB central parity and Bank of Russia reference rates."""
+"""Fetch official Bank of Russia daily rates and CFETS CNY parity cross-check."""
 from __future__ import annotations
 
 import json
@@ -13,26 +13,30 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
-CFETS_LATEST_URL = "https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/fx/ccpr.json"
-CFETS_HISTORY_URL = "https://www.chinamoney.com.cn/ags/ms/cm-u-bk-ccpr/CcprHisNew"
 CBR_LATEST_URL = "https://www.cbr.ru/scripts/XML_daily_eng.asp"
+CBR_HISTORY_URL = "https://www.cbr.ru/scripts/XML_dynamic.asp"
+CFETS_LATEST_URL = "https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/fx/ccpr.json"
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; CurrencyCalculator/2.0; +https://keassin30-svg.github.io/currency-calculator/)",
-    "Accept": "application/json, text/xml, application/xml, */*",
-    "Referer": "https://www.chinamoney.com.cn/english/bmkcpr/",
-    "Origin": "https://www.chinamoney.com.cn",
-    "X-Requested-With": "XMLHttpRequest",
-}
-PAIRS = ("USD/CNY", "EUR/CNY", "GBP/CNY", "CNY/RUB")
 CURRENCIES = ("CNY", "RUB", "GBP", "USD", "EUR")
+CBR_CODES = {
+    "USD": "R01235",
+    "EUR": "R01239",
+    "GBP": "R01035",
+    "CNY": "R01375",
+}
+CFETS_PAIRS = ("USD/CNY", "EUR/CNY", "GBP/CNY", "CNY/RUB")
+
+BASE_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36",
+    "Accept": "application/json, text/xml, application/xml, */*",
+}
 
 
-def fetch_bytes(url: str, method: str = "GET", body: bytes | None = None, headers: dict | None = None) -> bytes:
-    req_headers = dict(HEADERS)
+def fetch_bytes(url: str, headers: dict | None = None) -> bytes:
+    req_headers = dict(BASE_HEADERS)
     if headers:
         req_headers.update(headers)
-    req = urllib.request.Request(url, data=body, headers=req_headers, method=method)
+    req = urllib.request.Request(url, headers=req_headers)
     with urllib.request.urlopen(req, timeout=35) as response:
         return response.read()
 
@@ -44,111 +48,84 @@ def number(value) -> float:
     return float(text)
 
 
-def fetch_cfets_latest():
-    payload = json.loads(fetch_bytes(CFETS_LATEST_URL).decode("utf-8-sig"))
-    head = payload.get("head", {})
-    if str(head.get("rep_code", "200")) != "200":
-        raise RuntimeError("CFETS returned an error: " + str(head.get("rep_message", "")))
-    records = payload.get("records", [])
-    pairs = {}
-    for item in records:
-        pair = str(item.get("vrtEName", "")).upper()
-        if pair in PAIRS:
-            pairs[pair] = number(item.get("price"))
-    missing = [pair for pair in PAIRS if pair not in pairs]
+def parse_cbr_xml(raw: bytes):
+    root = ET.fromstring(raw)
+    raw_date = root.attrib.get("Date", "")
+    rate_date = datetime.strptime(raw_date, "%d.%m.%Y").date().isoformat()
+    rub_per_unit = {}
+    for item in root.findall("Valute"):
+        code = item.findtext("CharCode", "").upper()
+        if code not in CBR_CODES:
+            continue
+        nominal = number(item.findtext("Nominal", "1"))
+        value = number(item.findtext("Value", ""))
+        if nominal > 0:
+            rub_per_unit[code] = value / nominal
+    missing = [code for code in CBR_CODES if code not in rub_per_unit]
     if missing:
-        raise RuntimeError("CFETS latest data missing: " + ", ".join(missing))
-    raw_date = payload.get("data", {}).get("lastDate", "")
-    rate_date = str(raw_date)[:10]
+        raise RuntimeError("CBR missing rates: " + ", ".join(missing))
+    return rate_date, rub_per_unit
+
+
+def fetch_cbr_latest():
+    raw = fetch_bytes(CBR_LATEST_URL, {"Referer": "https://www.cbr.ru/eng/currency_base/daily/"})
+    return parse_cbr_xml(raw)
+
+
+def fetch_cfets_latest():
+    payload = json.loads(fetch_bytes(
+        CFETS_LATEST_URL,
+        {"Referer": "https://www.chinamoney.com.cn/english/bmkcpr/"}
+    ).decode("utf-8-sig"))
+    if str(payload.get("head", {}).get("rep_code", "200")) != "200":
+        raise RuntimeError("CFETS returned an error: " + str(payload.get("head", {}).get("rep_message", "")))
+    pairs = {}
+    for item in payload.get("records", []):
+        pair = str(item.get("vrtEName", "")).upper()
+        if pair in CFETS_PAIRS:
+            pairs[pair] = number(item.get("price"))
+    missing = [pair for pair in CFETS_PAIRS if pair not in pairs]
+    if missing:
+        raise RuntimeError("CFETS missing pairs: " + ", ".join(missing))
+    raw_date = str(payload.get("data", {}).get("lastDate", ""))
+    rate_date = raw_date[:10]
     if len(rate_date) != 10:
         raise RuntimeError("CFETS date missing or invalid")
     return rate_date, raw_date, pairs
 
 
-def fetch_cbr_latest():
-    try:
-        raw = fetch_bytes(CBR_LATEST_URL)
-        root = ET.fromstring(raw)
-        raw_date = root.attrib.get("Date", "")
-        rate_date = datetime.strptime(raw_date, "%d.%m.%Y").date().isoformat()
-        rub_per_unit = {}
-        for item in root.findall("Valute"):
-            code = item.findtext("CharCode", "").upper()
-            if code not in {"CNY", "USD", "EUR", "GBP"}:
-                continue
-            nominal = number(item.findtext("Nominal", "1"))
-            value = number(item.findtext("Value", ""))
-            if nominal <= 0:
-                continue
-            rub_per_unit[code] = value / nominal
-        if len(rub_per_unit) != 4:
-            raise RuntimeError("CBR did not return all four required currencies")
-        return {
-            "date": rate_date,
-            "rub_per_unit": rub_per_unit,
-            "source": "Bank of Russia official daily exchange rates",
-            "url": "https://www.cbr.ru/eng/currency_base/daily/",
-        }
-    except Exception as exc:
-        print("WARNING: Bank of Russia cross-check unavailable:", exc)
-        return None
-
-
-def fetch_history_pair(pair: str, start: date, end: date):
+def fetch_cbr_history(code: str, start: date, end: date):
     params = {
-        "startDate": start.isoformat(),
-        "endDate": end.isoformat(),
-        "currency": pair,
-        "pageNum": "1",
-        "pageSize": "100",
-        "t": str(int(datetime.now(timezone.utc).timestamp())),
+        "date_req1": start.strftime("%d/%m/%Y"),
+        "date_req2": end.strftime("%d/%m/%Y"),
+        "VAL_NM_RQ": CBR_CODES[code],
     }
-    url = CFETS_HISTORY_URL + "?" + urllib.parse.urlencode(params)
-    try:
-        raw = fetch_bytes(url)
-        payload = json.loads(raw.decode("utf-8-sig"))
-    except Exception:
-        # Some CFETS deployments accept the same query with a JSON POST body.
-        body = json.dumps({"pageNum": 1, "pageSize": 100}).encode("utf-8")
-        raw = fetch_bytes(
-            url,
-            method="POST",
-            body=body,
-            headers={"Content-Type": "application/json"},
-        )
-        payload = json.loads(raw.decode("utf-8-sig"))
-
-    if str(payload.get("head", {}).get("rep_code", "200")) != "200":
-        raise RuntimeError("CFETS history API returned an error")
+    url = CBR_HISTORY_URL + "?" + urllib.parse.urlencode(params)
+    raw = fetch_bytes(url, {"Referer": "https://www.cbr.ru/eng/currency_base/daily/"})
+    root = ET.fromstring(raw)
     rows = {}
-    for item in payload.get("records", []):
-        day = str(item.get("date", ""))[:10]
-        values = item.get("values") or []
-        if len(day) == 10 and values:
-            try:
-                rows[day] = number(values[0])
-            except (TypeError, ValueError):
-                pass
+    for item in root.findall("Record"):
+        raw_date = item.attrib.get("Date", "")
+        if not raw_date:
+            continue
+        day = datetime.strptime(raw_date, "%d.%m.%Y").date().isoformat()
+        nominal = number(item.findtext("Nominal", "1"))
+        value = number(item.findtext("Value", ""))
+        if nominal > 0:
+            rows[day] = value / nominal
     return rows
 
 
-def make_rate_table(pairs: dict[str, float]):
-    # CFETS quotes USD/CNY, EUR/CNY and GBP/CNY as CNY per 1 foreign unit;
-    # CNY/RUB is RUB per 1 CNY. Convert all currencies to a common CNY pivot.
-    cny_per_unit = {
-        "CNY": 1.0,
-        "USD": pairs["USD/CNY"],
-        "EUR": pairs["EUR/CNY"],
-        "GBP": pairs["GBP/CNY"],
-        "RUB": 1.0 / pairs["CNY/RUB"],
-    }
+def make_rate_table(rub_per_unit: dict[str, float]):
+    rub_per_unit = dict(rub_per_unit)
+    rub_per_unit["RUB"] = 1.0
     table = {}
     for base in CURRENCIES:
         table[base] = {}
         for target in CURRENCIES:
             if target != base:
-                table[base][target.lower()] = cny_per_unit[base] / cny_per_unit[target]
-    return cny_per_unit, table
+                table[base][target.lower()] = rub_per_unit[base] / rub_per_unit[target]
+    return rub_per_unit, table
 
 
 def read_history():
@@ -157,11 +134,14 @@ def read_history():
         return {}
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        return {
-            row["date"]: dict(row.get("pairs", {}))
-            for row in payload.get("records", [])
-            if row.get("date")
-        }
+        result = {}
+        for row in payload.get("records", []):
+            day = row.get("date")
+            if not day:
+                continue
+            if row.get("rub_per_unit"):
+                result[day] = dict(row["rub_per_unit"])
+        return result
     except Exception:
         return {}
 
@@ -172,60 +152,65 @@ def write_json(path: Path, payload):
 
 
 def main():
-    cfets_date, cfets_timestamp, latest_pairs = fetch_cfets_latest()
-    cbr = fetch_cbr_latest()
+    cbr_date, cbr_rub_rates = fetch_cbr_latest()
+    cfets_date, cfets_timestamp, cfets_pairs = fetch_cfets_latest()
+    rub_per_unit, rates = make_rate_table(cbr_rub_rates)
 
-    cny_per_unit, rates = make_rate_table(latest_pairs)
     latest = {
-        "date": cfets_date,
+        "date": cbr_date,
         "updated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "source_name": "China Foreign Exchange Trade System (CFETS), authorized by the People's Bank of China",
-        "source_url": "https://www.chinamoney.com.cn/english/bmkcpr/",
-        "source_api": CFETS_LATEST_URL,
-        "source_timestamp": cfets_timestamp,
-        "quote_method": "Official CNY central parity; other currency pairs are cross-rates derived from the same-day CNY parity.",
-        "pairs": latest_pairs,
-        "cny_per_unit": cny_per_unit,
+        "source_name": "Bank of Russia official daily exchange rates",
+        "source_url": "https://www.cbr.ru/eng/currency_base/daily/",
+        "source_api": CBR_LATEST_URL,
+        "quote_method": "Official daily rates of CNY, GBP, USD and EUR against RUB; all other pairs are cross-rates derived from the same-day RUB rates.",
+        "rub_per_unit": rub_per_unit,
         "rates": rates,
-        "cbr_reference": cbr,
+        "cfets_reference": {
+            "date": cfets_date,
+            "timestamp": cfets_timestamp,
+            "source_name": "China Foreign Exchange Trade System (CFETS), authorized by the People's Bank of China",
+            "source_url": "https://www.chinamoney.com.cn/english/bmkcpr/",
+            "pairs": cfets_pairs,
+        },
         "notes": [
-            "CFETS is authorized by the People's Bank of China to publish RMB central parity rates.",
-            "Bank of Russia official rates are shown as an independent RUB cross-check when available.",
-            "The Bank of England states that its database exchange rates are not official; GBP uses the CFETS CNY/GBP central parity.",
+            "Bank of Russia official daily exchange rates are the primary calculation source.",
+            "CFETS RMB central parity is displayed as an independent PBOC-authorized reference for CNY pairs.",
+            "The Bank of England states that its database exchange rates are not official; this page does not label GBP as a Bank of England official rate.",
             "Reference rates are not bank, payment-provider, or marketplace settlement quotes."
         ],
     }
     write_json(DATA_DIR / "latest.json", latest)
 
     history = read_history()
-    for pair in PAIRS:
+    end = date.fromisoformat(cbr_date)
+    start = end - timedelta(days=45)
+    for code in CBR_CODES:
         try:
-            rows = fetch_history_pair(pair, date.fromisoformat(cfets_date) - timedelta(days=45), date.fromisoformat(cfets_date))
-            print("History", pair, "received", len(rows), "rows")
+            rows = fetch_cbr_history(code, start, end)
+            print("CBR history", code, "received", len(rows), "rows")
             for day, value in rows.items():
-                history.setdefault(day, {})[pair] = value
+                history.setdefault(day, {})[code] = value
         except Exception as exc:
-            print("WARNING: CFETS history fetch failed for", pair, ":", exc)
+            print("WARNING: CBR history fetch failed for", code, ":", exc)
 
-    # Always keep the latest published fixing in the local history file.
-    history.setdefault(cfets_date, {}).update(latest_pairs)
-    cutoff = date.fromisoformat(cfets_date) - timedelta(days=400)
+    history.setdefault(cbr_date, {}).update(cbr_rub_rates)
+    cutoff = end - timedelta(days=400)
     history = {
-        day: pairs
-        for day, pairs in history.items()
+        day: rates_for_day
+        for day, rates_for_day in history.items()
         if len(day) == 10 and date.fromisoformat(day) >= cutoff
     }
-    history_rows = [
-        {"date": day, "pairs": history[day]}
+    rows = [
+        {"date": day, "rub_per_unit": dict(history[day])}
         for day in sorted(history)
     ]
     write_json(DATA_DIR / "history.json", {
-        "source_name": "CFETS historical CNY central parity",
-        "source_url": "https://www.chinamoney.com.cn/english/bmkcpr/",
+        "source_name": "Bank of Russia historical official daily exchange rates",
+        "source_url": "https://www.cbr.ru/eng/currency_base/daily/",
         "updated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "records": history_rows,
+        "records": rows,
     })
-    print("Saved latest CFETS date:", cfets_date, "history records:", len(history_rows))
+    print("Saved CBR date:", cbr_date, "CFETS date:", cfets_date, "history records:", len(rows))
 
 
 if __name__ == "__main__":
