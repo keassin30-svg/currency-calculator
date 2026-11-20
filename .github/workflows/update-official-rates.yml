@@ -2,7 +2,7 @@ name: Update official FX reference rates
 
 on:
   schedule:
-    # CFETS normally publishes the daily RMB central parity after 09:15 China time.
+    # CBR/CFETS publish on working days; scheduled after the CFETS morning fixing.
     - cron: "30 2 * * 1-5"
   workflow_dispatch:
   push:
@@ -11,6 +11,10 @@ on:
     paths:
       - ".github/workflows/update-official-rates.yml"
       - "scripts/update_rates.py"
+
+concurrency:
+  group: official-fx-rate-refresh
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -21,6 +25,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,5 +45,6 @@ jobs:
             echo "No rate data changes."
           else
             git commit -m "Update official FX reference rates"
+            git pull --rebase origin main
             git push
           fi
