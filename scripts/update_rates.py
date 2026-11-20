@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch official Bank of Russia daily rates and CFETS CNY parity cross-check."""
+"""Fetch official Bank of Russia daily rates and CFETS CNY parity cross-check.\n\nThis script also backfills the recent official daily series for the 7-day and 30-day charts.\n"""
 from __future__ import annotations
 
 import json
