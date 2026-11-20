@@ -1,16 +1,16 @@
 {
   "date": "2026-11-20",
-  "updated_at_utc": "2026-11-20T10:02:28.561Z",
+  "updated_at_utc": "2026-11-20T10:03:42+00:00",
   "source_name": "Bank of Russia official daily exchange rates",
   "source_url": "https://www.cbr.ru/eng/currency_base/daily/",
   "source_api": "https://www.cbr.ru/scripts/XML_daily_eng.asp",
   "quote_method": "Official daily rates of CNY, GBP, USD and EUR against RUB; all other pairs are cross-rates derived from the same-day RUB rates.",
   "rub_per_unit": {
-    "CNY": 12.2546,
+    "GBP": 107.7202,
     "USD": 81.929,
     "EUR": 89.8597,
-    "GBP": 107.7202,
-    "RUB": 1
+    "CNY": 12.2546,
+    "RUB": 1.0
   },
   "rates": {
     "CNY": {
