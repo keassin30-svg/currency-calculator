@@ -38,7 +38,7 @@ def fetch_bytes(url: str, method: str = "GET", body: bytes | None = None, header
 
 
 def number(value) -> float:
-    text = str(value).strip().replace(",", "")
+    text = str(value).strip().replace(" ", "").replace(",", ".")
     if not text or text in {"---", "-", "None", "null"}:
         raise ValueError("missing numeric rate")
     return float(text)
