@@ -1,109 +1,201 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111d32">
 <title>currency calculator</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--ink:#18243a;--muted:#718096;--line:#e6ebf2;--blue:#315efb;--navy:#111d32;--shadow:0 10px 30px rgba(20,38,68,.07)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
-header{background:linear-gradient(135deg,#111d32,#203b60);color:white;padding:28px max(20px,calc((100% - 1080px)/2)) 42px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:13px;letter-spacing:.18em;color:#c3d1e3}.pill{border:1px solid #63738b;border-radius:30px;padding:7px 11px;font-size:11px;color:#e1eafa}
+header{background:linear-gradient(135deg,#111d32,#203b60);color:white;padding:27px max(20px,calc((100% - 1080px)/2)) 43px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:12px;letter-spacing:.18em;color:#c3d1e3}.pill{border:1px solid #63738b;border-radius:30px;padding:7px 11px;font-size:11px;color:#e1eafa}
 h1{font-size:clamp(27px,4vw,39px);letter-spacing:-.045em;margin:20px 0 6px}.subtitle{font-size:14px;color:#c0ccdc}
 main{max-width:1080px;margin:-20px auto 35px;padding:0 18px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px}
-.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}h2{font-size:17px;margin:0}.muted{font-size:12px;color:var(--muted)}
+.heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}h2{font-size:17px;margin:0}.muted{font-size:12px;color:var(--muted);line-height:1.65}
 .inputrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:12px;align-items:end}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.field select,.field input{width:100%;height:56px;border:1px solid #dfe6ef;border-radius:12px;background:#fff;padding:0 14px;font-size:17px;color:var(--ink);outline:none}.field input{font-size:24px;font-weight:650}.field select:focus,.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #315efb18}
 .results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}.result{border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}.resulthead{display:flex;align-items:center;gap:8px;color:#56657b;font-size:13px}.result strong{display:block;font-size:clamp(21px,3vw,27px);letter-spacing:-.03em;margin:10px 0 4px;overflow-wrap:anywhere}.result small{font-size:12px;color:var(--muted)}
-.basebox{margin-top:14px;background:#f5f8ff;border-radius:12px;padding:13px 15px;font-size:13px;color:#586a84;line-height:1.7}
-.tabs{display:flex;gap:7px}.tab,.action{border:1px solid var(--line);background:white;border-radius:9px;padding:8px 12px;font-size:12px;color:#56657b;cursor:pointer}.tab.active{background:#edf2ff;border-color:#cbd7ff;color:#244fe0}.action{border-radius:30px}.chartgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.chartbox{border:1px solid var(--line);border-radius:13px;padding:13px;min-width:0}.charttitle{font-size:12px;color:#596981;margin-bottom:6px}.chartbox canvas{width:100%;height:125px;display:block}.status{font-size:12px;color:var(--muted);line-height:1.7}.foot{max-width:1080px;margin:0 auto;padding:0 18px 30px;color:#8793a5;font-size:11px;line-height:1.7}
-@media(max-width:620px){header{padding:22px 18px 40px}.card{padding:16px;border-radius:15px}.inputrow{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr;gap:9px}.result{padding:12px}.result strong{font-size:20px}.chartgrid{grid-template-columns:1fr}.chartbox canvas{height:115px}}
-</style></head>
+.sourcebox{margin-top:14px;background:#f5f8ff;border-radius:12px;padding:13px 15px;font-size:12px;color:#586a84;line-height:1.75}
+.tabs{display:flex;gap:7px}.tab,.action{border:1px solid var(--line);background:white;border-radius:9px;padding:8px 12px;font-size:12px;color:#56657b;cursor:pointer}.tab.active{background:#edf2ff;border-color:#cbd7ff;color:#244fe0}.action{border-radius:30px}.action:disabled{opacity:.5;cursor:wait}
+.chartgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:13px}.chartbox{border:1px solid var(--line);border-radius:13px;padding:13px;min-width:0}.charttitle{font-size:12px;color:#596981;margin-bottom:6px}.chartbox canvas{width:100%;height:135px;display:block}
+.status{font-size:12px;color:var(--muted);line-height:1.75}.source-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.source-item{border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12px;line-height:1.7}.source-item b{display:block;margin-bottom:4px;color:#26364f}.source-item a{color:#315efb;text-decoration:none}.foot{max-width:1080px;margin:0 auto;padding:0 18px 30px;color:#8793a5;font-size:11px;line-height:1.7}
+@media(max-width:620px){header{padding:22px 18px 40px}.card{padding:16px;border-radius:15px}.inputrow{grid-template-columns:1fr}.results{grid-template-columns:1fr 1fr;gap:9px}.result{padding:12px}.result strong{font-size:20px}.chartgrid,.source-list{grid-template-columns:1fr}.chartbox canvas{height:125px}}
+</style>
+</head>
 <body>
-<header><div class="top"><div class="brand">FX DESK</div><div class="pill">DAILY REFERENCE RATES</div></div><h1>currency calculator</h1><div class="subtitle">五种主要货币 · 一次输入 · 同时查看全部换算结果</div></header>
+<header>
+ <div class="top"><div class="brand">FX DESK</div><div class="pill">OFFICIAL REFERENCE RATES · WEEKDAY UPDATE</div></div>
+ <h1>currency calculator</h1>
+ <div class="subtitle">人民币 · 俄罗斯卢布 · 英镑 · 美元 · 欧元</div>
+</header>
 <main>
 <section class="card">
- <div class="heading"><h2>汇率换算</h2><span class="muted" id="updated">正在获取汇率…</span></div>
+ <div class="heading"><h2>汇率换算</h2><span class="muted" id="updated">正在读取官方汇率…</span></div>
  <div class="inputrow">
   <div class="field"><label>选择输入货币</label><select id="base">
-   <option value="CNY">🇨🇳 人民币 · CNY</option><option value="RUB">🇷🇺 俄罗斯卢布 · RUB</option><option value="GBP">🇬🇧 英镑 · GBP</option><option value="USD">🇺🇸 美元 · USD</option><option value="EUR">🇪🇺 欧元 · EUR</option>
+   <option value="CNY">🇨🇳 人民币 · CNY</option>
+   <option value="RUB">🇷🇺 俄罗斯卢布 · RUB</option>
+   <option value="GBP">🇬🇧 英镑 · GBP</option>
+   <option value="USD">🇺🇸 美元 · USD</option>
+   <option value="EUR">🇪🇺 欧元 · EUR</option>
   </select></div>
   <div class="field"><label>输入金额</label><input id="amount" type="number" min="0" step="any" value="1" inputmode="decimal"></div>
  </div>
  <div class="results" id="results"></div>
- <div class="basebox" id="baseInfo">输入金额后，将同时显示其余四种货币的换算结果。更改输入货币即可切换计算基准。</div>
+ <div class="sourcebox" id="sourceSummary">正在读取CFETS与俄罗斯央行数据…</div>
 </section>
 <section class="card">
  <div class="heading"><h2>汇率走势</h2><div class="tabs"><button class="tab active" data-days="7">7天</button><button class="tab" data-days="30">30天</button></div></div>
- <div class="muted" style="margin:-7px 0 14px">以当前选择的输入货币为基准，展示其余四种货币的历史参考汇率</div>
- <div class="chartgrid" id="charts">
-  <div class="chartbox"><div class="charttitle">🇷🇺 俄罗斯卢布</div><canvas id="chart-RUB"></canvas></div>
-  <div class="chartbox"><div class="charttitle">🇬🇧 英镑</div><canvas id="chart-GBP"></canvas></div>
-  <div class="chartbox"><div class="charttitle">🇺🇸 美元</div><canvas id="chart-USD"></canvas></div>
-  <div class="chartbox"><div class="charttitle">🇪🇺 欧元</div><canvas id="chart-EUR"></canvas></div>
- </div>
- <div class="status" id="chartStatus" style="margin-top:12px">正在加载历史汇率…</div>
+ <div class="muted">使用CFETS历史人民币汇率中间价；交叉币种走势按各交易日的人民币中间价推算。仅在有官方公布数据的日期绘图。</div>
+ <div class="chartgrid" id="charts"></div>
+ <div class="status" id="chartStatus" style="margin-top:12px">正在读取历史数据…</div>
 </section>
-<section class="card"><div class="heading"><h2>数据说明</h2><button class="action" id="refresh">↻ 刷新汇率</button></div><div class="status" id="dataStatus">参考汇率来自公开每日汇率数据源。每日数据并非银行实时买卖价，也不等同于支付平台或跨境电商实际结算汇率。俄罗斯卢布可能因流动性和报价渠道产生较大差异，请以实际收付款渠道报价为准。</div></section>
-</main><div class="foot">currency calculator · 参考汇率仅供计算和趋势观察。页面不会保存或上传输入金额。若外部数据接口被当前预览环境或网络限制，建议下载 HTML 文件后使用 Chrome / Edge 打开。</div>
+<section class="card">
+ <div class="heading"><h2>数据来源与使用说明</h2><button class="action" id="refresh">↻ 刷新数据</button></div>
+ <div class="status" id="dataStatus">本计算器采用官方参考汇率，不代表银行、支付机构或跨境平台的实际买入价、卖出价或结算价。</div>
+ <div class="source-list">
+  <div class="source-item"><b>中国外汇交易中心 CFETS</b>人民币汇率中间价，经中国人民银行授权发布。<br><a href="https://www.chinamoney.com.cn/english/bmkcpr/" target="_blank" rel="noopener">查看官方数据</a></div>
+  <div class="source-item"><b>俄罗斯央行 Bank of Russia</b>官方卢布汇率，用于人民币兑卢布的独立核验。<br><a href="https://www.cbr.ru/eng/currency_base/daily/" target="_blank" rel="noopener">查看官方数据</a></div>
+  <div class="source-item"><b>英镑数据说明</b>英国央行说明其数据库汇率并非官方汇率。本工具采用CFETS人民币兑英镑中间价，不标注为英国央行官方报价。<br><a href="https://www.bankofengland.co.uk/statistics/faqs" target="_blank" rel="noopener">查看英国央行说明</a></div>
+  <div class="source-item"><b>定价与结算提醒</b>WB平台结算汇率、收款渠道点差、提现费、平台佣金、物流和税费需单独核算。记账和报税应按适用规则规定的汇率及日期执行。</div>
+ </div>
+</section>
+</main>
+<div class="foot">currency calculator · 官方参考价仅供定价、估算和趋势观察。数据按发布机构工作日更新；节假日可能沿用最近一个已公布交易日。网页不会保存或上传你的输入金额。</div>
 <script>
-const CUR={CNY:{n:"人民币",f:"🇨🇳",s:"¥"},RUB:{n:"俄罗斯卢布",f:"🇷🇺",s:"₽"},GBP:{n:"英镑",f:"🇬🇧",s:"£"},USD:{n:"美元",f:"🇺🇸",s:"$"},EUR:{n:"欧元",f:"🇪🇺",s:"€"}};
-const all=Object.keys(CUR);let rates={},rateDate="",days=7;const $=x=>document.getElementById(x);
-const fmt=(n,d=5)=>Number.isFinite(n)?new Intl.NumberFormat("zh-CN",{maximumFractionDigits:d}).format(n):"—";
-async function jsonFrom(url1,url2){for(const u of [url1,url2]){try{const r=await fetch(u,{cache:"no-store"});if(r.ok)return await r.json()}catch(e){}}throw Error("汇率接口连接失败")}
-async function getRates(base,date="latest"){
- const file=`v1/currencies/${base.toLowerCase()}.json`;
- const u1=`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${date}/${file}`;
- const u2=`https://${date}.currency-api.pages.dev/${file}`;
- const j=await jsonFrom(u1,u2);return {date:j.date||date,data:j[base.toLowerCase()]};
+"use strict";
+const CUR={
+ CNY:{n:"人民币",f:"🇨🇳",s:"¥"},
+ RUB:{n:"俄罗斯卢布",f:"🇷🇺",s:"₽"},
+ GBP:{n:"英镑",f:"🇬🇧",s:"£"},
+ USD:{n:"美元",f:"🇺🇸",s:"$"},
+ EUR:{n:"欧元",f:"🇪🇺",s:"€"}
+};
+const all=Object.keys(CUR);
+const $=id=>document.getElementById(id);
+let latest=null,historyRows=[],days=7;
+const fmt=(n,d=6)=>Number.isFinite(n)?new Intl.NumberFormat("zh-CN",{maximumFractionDigits:d}).format(n):"—";
+
+async function getJson(path){
+ const response=await fetch(path+"?v="+Date.now(),{cache:"no-store"});
+ if(!response.ok)throw new Error("读取"+path+"失败（HTTP "+response.status+"）");
+ return response.json();
 }
 function renderResults(){
- const base=$("base").value,amount=Number($("amount").value),r=rates[base]||{};
- $("results").innerHTML=all.filter(c=>c!==base).map(c=>{
-  const rate=Number(r[c.toLowerCase()]),v=amount*rate;
-  return `<div class="result"><div class="resulthead"><span>${CUR[c].f}</span><b>${CUR[c].n} · ${c}</b></div><strong>${CUR[c].s} ${fmt(v,6)}</strong><small>1 ${base} = ${fmt(rate,8)} ${c}</small></div>`;
+ const base=$("base").value;
+ const amount=Number($("amount").value);
+ const rateMap=latest&&latest.rates?latest.rates[base]:null;
+ $("results").innerHTML=all.filter(code=>code!==base).map(code=>{
+  const rate=rateMap?Number(rateMap[code.toLowerCase()]):NaN;
+  const value=amount*rate;
+  return '<div class="result"><div class="resulthead"><span>'+CUR[code].f+'</span><b>'+CUR[code].n+' · '+code+'</b></div><strong>'+CUR[code].s+' '+fmt(value,6)+'</strong><small>1 '+base+' = '+fmt(rate,8)+' '+code+'</small></div>';
  }).join("");
- $("baseInfo").textContent=`${fmt(amount,6)} ${CUR[base].n}，已同时换算为其余四种货币。汇率日期：${rateDate||"—"}。`;
+ if(latest){
+  $("sourceSummary").textContent="基准日期："+latest.date+"。主数据：中国外汇交易中心（CFETS）人民币汇率中间价；所有交叉币种由同一基准日的中间价推算。";
+ }else{
+  $("sourceSummary").textContent="官方汇率暂不可用。请稍后刷新；系统不会用未经核实的旧数据冒充最新汇率。";
+ }
 }
-async function loadLatest(){
- $("updated").textContent="正在获取最新汇率…";
- try{
-  const bases=all;const data=await Promise.all(bases.map(async b=>[b,await getRates(b)]));
-  rates={};data.forEach(([b,x])=>rates[b]=x.data);rateDate=data[0][1].date;
-  $("updated").textContent=`数据日期：${rateDate}`;
-  $("dataStatus").textContent="最新参考汇率已更新。"+$("dataStatus").textContent.split("。").slice(1).join("。");
- }catch(e){
-  rates={};rateDate="";
-  $("updated").textContent="汇率加载失败";
-  $("dataStatus").textContent="无法连接在线汇率接口，当前不显示估算或过期汇率。请检查网络后点击刷新。";
-  renderResults();
-  $("chartStatus").textContent="历史汇率暂不可用，请检查网络后刷新。";
+function cnyPerUnitFromPairs(pairs){
+ const usd=Number(pairs["USD/CNY"]),eur=Number(pairs["EUR/CNY"]),gbp=Number(pairs["GBP/CNY"]),cnyRub=Number(pairs["CNY/RUB"]);
+ if(!(usd>0&&eur>0&&gbp>0&&cnyRub>0))return null;
+ return {CNY:1,USD:usd,EUR:eur,GBP:gbp,RUB:1/cnyRub};
+}
+function rateFromPairs(pairs,base,target){
+ const cny=cnyPerUnitFromPairs(pairs);
+ if(!cny||!cny[base]||!cny[target])return NaN;
+ return cny[base]/cny[target];
+}
+function renderSourceDetails(){
+ if(!latest){$("dataStatus").textContent="官方汇率文件暂不可用。请稍后刷新。";return;}
+ const p=latest.pairs||{};
+ const cbr=latest.cbr_reference;
+ let comparison="俄罗斯央行核验数据暂不可用。";
+ if(cbr&&cbr.rub_per_unit&&cbr.rub_per_unit.CNY){
+  const cfets=Number(p["CNY/RUB"]),russian=Number(cbr.rub_per_unit.CNY);
+  if(cfets>0&&russian>0){
+   if(cbr.date===latest.date){
+    const diff=(cfets/russian-1)*100;
+    comparison="同日卢布交叉核验：CFETS 1 CNY = "+fmt(cfets,6)+" RUB；俄罗斯央行 1 CNY = "+fmt(russian,6)+" RUB；两者差异 "+fmt(Math.abs(diff),4)+"%。";
+   }else{
+    comparison="卢布交叉核验：CFETS日期 "+latest.date+"，1 CNY = "+fmt(cfets,6)+" RUB；俄罗斯央行日期 "+cbr.date+"，1 CNY = "+fmt(russian,6)+" RUB。日期不同，不直接比较偏差。";
+   }
+  }
+ }
+ $("dataStatus").textContent="CFETS数据日期："+latest.date+"；"+comparison+" 英镑采用CFETS人民币兑英镑中间价。官方参考价不是实际收付款成交价，WB结算、支付渠道点差和手续费可能不同。";
+}
+function drawChart(canvas,arr){
+ const ctx=canvas.getContext("2d");
+ const width=Math.max(200,canvas.clientWidth),height=canvas.clientHeight||130,dpr=window.devicePixelRatio||1;
+ canvas.width=width*dpr;canvas.height=height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
+ if(!arr.length){ctx.fillStyle="#8995a6";ctx.font="11px sans-serif";ctx.fillText("暂无可用历史数据",8,22);return;}
+ const vals=arr.map(x=>x.value),min=Math.min.apply(null,vals),max=Math.max.apply(null,vals);
+ const range=(max-min)||Math.max(Math.abs(max)*0.01,0.000001),low=min-range*.15,high=max+range*.15;
+ const pad={l:48,r:10,t:12,b:22},cw=width-pad.l-pad.r,ch=height-pad.t-pad.b;
+ ctx.font="9px sans-serif";ctx.fillStyle="#8592a5";ctx.strokeStyle="#edf1f6";ctx.lineWidth=1;
+ for(let i=0;i<3;i++){
+  const y=pad.t+ch*i/2;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(width-pad.r,y);ctx.stroke();
+  ctx.fillText(fmt(high-(high-low)*i/2,4),2,y+3);
+ }
+ const x=i=>pad.l+(arr.length===1?cw/2:i/(arr.length-1)*cw);
+ const y=v=>pad.t+(high-v)/(high-low)*ch;
+ ctx.beginPath();
+ arr.forEach((point,i)=>{if(i===0)ctx.moveTo(x(i),y(point.value));else ctx.lineTo(x(i),y(point.value));});
+ ctx.strokeStyle="#315efb";ctx.lineWidth=2;ctx.stroke();
+ arr.forEach((point,i)=>{ctx.beginPath();ctx.arc(x(i),y(point.value),2.4,0,Math.PI*2);ctx.fillStyle="#315efb";ctx.fill();});
+ ctx.fillStyle="#8592a5";ctx.fillText(arr[0].date.slice(5),pad.l,height-4);
+ const last=arr[arr.length-1].date.slice(5);ctx.fillText(last,width-34,height-4);
+}
+function renderCharts(){
+ const base=$("base").value,targets=all.filter(code=>code!==base);
+ $("charts").innerHTML=targets.map(code=>'<div class="chartbox"><div class="charttitle">'+CUR[code].f+' '+CUR[code].n+' · '+code+'</div><canvas id="chart-'+code+'"></canvas></div>').join("");
+ if(!historyRows.length){
+  $("chartStatus").textContent="历史汇率正在积累，或历史接口暂不可用。";
   return;
  }
- renderResults();loadCharts();
-}
-function datesFor(n){const t=new Date(),a=[];for(let i=n-1;i>=0;i--){const d=new Date(t);d.setUTCDate(d.getUTCDate()-i);a.push(d.toISOString().slice(0,10))}return a}
-function draw(id,arr){
- const c=$(id),ctx=c.getContext("2d"),w=c.clientWidth,h=c.clientHeight,dpr=devicePixelRatio||1;c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
- if(!arr.length){ctx.fillStyle="#8995a6";ctx.font="11px sans-serif";ctx.fillText("暂无历史数据",8,20);return}
- const vals=arr.map(x=>x.v),mn=Math.min(...vals),mx=Math.max(...vals),pad={l:43,r:8,t:10,b:21},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b,rg=(mx-mn)||Math.abs(mx)*.01||1,lo=mn-rg*.12,hi=mx+rg*.12;
- ctx.font="9px sans-serif";ctx.fillStyle="#8592a5";ctx.strokeStyle="#edf1f6";
- for(let i=0;i<3;i++){let y=pad.t+ch*i/2;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText(fmt(hi-(hi-lo)*i/2,4),2,y+3)}
- const x=i=>pad.l+i/(arr.length-1||1)*cw,y=v=>pad.t+(hi-v)/(hi-lo)*ch;
- ctx.beginPath();arr.forEach((p,i)=>i?ctx.lineTo(x(i),y(p.v)):ctx.moveTo(x(i),y(p.v)));ctx.strokeStyle="#315efb";ctx.lineWidth=2;ctx.stroke();
- ctx.fillStyle="#8592a5";ctx.fillText(arr[0].d.slice(5),pad.l,h-4);const t=arr.at(-1).d.slice(5);ctx.fillText(t,w-28,h-4);
-}
-async function loadCharts(){
- const base=$("base").value,targets=all.filter(x=>x!==base),dates=datesFor(days);$("chartStatus").textContent="正在读取历史数据…";
- const tasks=targets.map(async target=>{
-  const points=await Promise.all(dates.map(async d=>{try{const x=await getRates(base,d);const v=Number(x.data?.[target.toLowerCase()]);return v>0?{d,v}:null}catch(e){return null}}));
-  const arr=points.filter(Boolean);draw("chart-"+target,arr);return arr.length;
+ const cutoff=new Date();cutoff.setDate(cutoff.getDate()-days+1);cutoff.setHours(0,0,0,0);
+ const start=cutoff.toISOString().slice(0,10);
+ const rows=historyRows.filter(row=>row.date>=start);
+ let available=0;
+ targets.forEach(code=>{
+  const points=rows.map(row=>{
+   const value=rateFromPairs(row.pairs||{},base,code);
+   return Number.isFinite(value)&&value>0?{date:row.date,value:value}:null;
+  }).filter(Boolean);
+  if(points.length)available++;
+  drawChart($("chart-"+code),points);
  });
- const counts=await Promise.all(tasks);$("chartStatus").textContent=`历史数据已尝试载入：${targets.map((t,i)=>`${CUR[t].n} ${counts[i]}/${days}天`).join(" · ")}。若部分日期无数据，可能是该日数据尚未发布或接口不可用。`;
+ $("chartStatus").textContent="已载入"+rows.length+"个交易日记录；"+available+"/"+targets.length+"条汇率曲线有数据。周末及节假日没有新中间价时不会虚构数据。";
 }
-$("base").addEventListener("change",()=>{renderResults();loadCharts()});$("amount").addEventListener("input",renderResults);
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active");days=Number(b.dataset.days);loadCharts()}));
-$("refresh").addEventListener("click",async()=>{const b=$("refresh");b.disabled=true;await loadLatest();b.disabled=false});
-window.addEventListener("resize",()=>loadCharts());
-// 首屏先用缓存汇率计算，在线更新在后台尝试。
-$("updated").textContent="正在获取汇率…";renderResults();loadLatest();
-</script></body></html>
+async function loadData(){
+ $("updated").textContent="正在读取官方数据…";
+ try{
+  const values=await Promise.all([getJson("./data/latest.json"),getJson("./data/history.json")]);
+  latest=values[0];historyRows=values[1].records||[];
+  if(!latest.rates||!latest.date)throw new Error("官方汇率数据格式不完整");
+  $("updated").textContent="官方数据日期："+latest.date;
+  renderResults();renderSourceDetails();renderCharts();
+ }catch(error){
+  latest=null;historyRows=[];
+  $("updated").textContent="官方数据加载失败";
+  $("dataStatus").textContent=error.message+"。请稍后重试。";
+  renderResults();renderCharts();
+ }
+}
+$("base").addEventListener("change",()=>{renderResults();renderCharts()});
+$("amount").addEventListener("input",renderResults);
+document.querySelectorAll(".tab").forEach(button=>{
+ button.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(item=>item.classList.remove("active"));
+  button.classList.add("active");days=Number(button.dataset.days);renderCharts();
+ });
+});
+$("refresh").addEventListener("click",async()=>{
+ const button=$("refresh");button.disabled=true;button.textContent="刷新中…";
+ await loadData();button.disabled=false;button.textContent="↻ 刷新数据";
+});
+window.addEventListener("resize",()=>renderCharts());
+loadData();
+</script>
+</body>
+</html>
