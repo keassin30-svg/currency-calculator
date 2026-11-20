@@ -54,8 +54,8 @@ main{max-width:1080px;margin:-20px auto 35px;padding:0 18px}.card{background:#ff
  <div class="heading"><h2>数据来源与使用说明</h2><button class="action" id="refresh">↻ 刷新数据</button></div>
  <div class="status" id="dataStatus">本计算器采用官方参考汇率，不代表银行、支付机构或跨境平台的实际买入价、卖出价或结算价。</div>
  <div class="source-list">
-  <div class="source-item"><b>中国外汇交易中心 CFETS</b>人民币汇率中间价，经中国人民银行授权发布。<br><a href="https://www.chinamoney.com.cn/english/bmkcpr/" target="_blank" rel="noopener">查看官方数据</a></div>
-  <div class="source-item"><b>俄罗斯央行 Bank of Russia</b>官方卢布汇率，用于人民币兑卢布的独立核验。<br><a href="https://www.cbr.ru/eng/currency_base/daily/" target="_blank" rel="noopener">查看官方数据</a></div>
+  <div class="source-item"><b>俄罗斯央行 Bank of Russia</b>官方人民币、英镑、美元、欧元兑卢布汇率；作为全部交叉换算的主数据源。<br><a href="https://www.cbr.ru/eng/currency_base/daily/" target="_blank" rel="noopener">查看官方数据</a></div>
+  <div class="source-item"><b>中国外汇交易中心 CFETS</b>经中国人民银行授权发布人民币汇率中间价，用于人民币相关汇率的独立交叉核验。<br><a href="https://www.chinamoney.com.cn/english/bmkcpr/" target="_blank" rel="noopener">查看官方数据</a></div>
   <div class="source-item"><b>英镑数据说明</b>英国央行说明其数据库汇率并非官方汇率。本工具采用CFETS人民币兑英镑中间价，不标注为英国央行官方报价。<br><a href="https://www.bankofengland.co.uk/statistics/faqs" target="_blank" rel="noopener">查看英国央行说明</a></div>
   <div class="source-item"><b>定价与结算提醒</b>WB平台结算汇率、收款渠道点差、提现费、平台佣金、物流和税费需单独核算。记账和报税应按适用规则规定的汇率及日期执行。</div>
  </div>
@@ -91,38 +91,35 @@ function renderResults(){
   return '<div class="result"><div class="resulthead"><span>'+CUR[code].f+'</span><b>'+CUR[code].n+' · '+code+'</b></div><strong>'+CUR[code].s+' '+fmt(value,6)+'</strong><small>1 '+base+' = '+fmt(rate,8)+' '+code+'</small></div>';
  }).join("");
  if(latest){
-  $("sourceSummary").textContent="基准日期："+latest.date+"。主数据：中国外汇交易中心（CFETS）人民币汇率中间价；所有交叉币种由同一基准日的中间价推算。";
+  $("sourceSummary").textContent="基准日期："+latest.date+"。主计算数据：俄罗斯央行官方卢布汇率；所有交叉币种以卢布为共同基准推算。CFETS人民币中间价作为人民币汇率独立核验。";
  }else{
   $("sourceSummary").textContent="官方汇率暂不可用。请稍后刷新；系统不会用未经核实的旧数据冒充最新汇率。";
  }
 }
-function cnyPerUnitFromPairs(pairs){
- const usd=Number(pairs["USD/CNY"]),eur=Number(pairs["EUR/CNY"]),gbp=Number(pairs["GBP/CNY"]),cnyRub=Number(pairs["CNY/RUB"]);
- if(!(usd>0&&eur>0&&gbp>0&&cnyRub>0))return null;
- return {CNY:1,USD:usd,EUR:eur,GBP:gbp,RUB:1/cnyRub};
-}
-function rateFromPairs(pairs,base,target){
- const cny=cnyPerUnitFromPairs(pairs);
- if(!cny||!cny[base]||!cny[target])return NaN;
- return cny[base]/cny[target];
+function rateFromHistory(row,base,target){
+ const rub=row&&row.rub_per_unit?row.rub_per_unit:{};
+ const baseValue=base==="RUB"?1:Number(rub[base]);
+ const targetValue=target==="RUB"?1:Number(rub[target]);
+ if(!(baseValue>0&&targetValue>0))return NaN;
+ return baseValue/targetValue;
 }
 function renderSourceDetails(){
  if(!latest){$("dataStatus").textContent="官方汇率文件暂不可用。请稍后刷新。";return;}
- const p=latest.pairs||{};
- const cbr=latest.cbr_reference;
- let comparison="俄罗斯央行核验数据暂不可用。";
- if(cbr&&cbr.rub_per_unit&&cbr.rub_per_unit.CNY){
-  const cfets=Number(p["CNY/RUB"]),russian=Number(cbr.rub_per_unit.CNY);
-  if(cfets>0&&russian>0){
-   if(cbr.date===latest.date){
-    const diff=(cfets/russian-1)*100;
-    comparison="同日卢布交叉核验：CFETS 1 CNY = "+fmt(cfets,6)+" RUB；俄罗斯央行 1 CNY = "+fmt(russian,6)+" RUB；两者差异 "+fmt(Math.abs(diff),4)+"%。";
-   }else{
-    comparison="卢布交叉核验：CFETS日期 "+latest.date+"，1 CNY = "+fmt(cfets,6)+" RUB；俄罗斯央行日期 "+cbr.date+"，1 CNY = "+fmt(russian,6)+" RUB。日期不同，不直接比较偏差。";
-   }
+ const cbr=latest.rub_per_unit||{};
+ const cfets=latest.cfets_reference||{};
+ const cfetsPairs=cfets.pairs||{};
+ const cfetsCnyRub=Number(cfetsPairs["CNY/RUB"]);
+ const cbrCnyRub=Number(cbr.CNY);
+ let comparison="CFETS人民币中间价交叉核验暂不可用。";
+ if(cfetsCnyRub>0&&cbrCnyRub>0){
+  if(cfets.date===latest.date){
+   const diff=(cfetsCnyRub/cbrCnyRub-1)*100;
+   comparison="同日CNY/RUB核验：俄罗斯央行 1 CNY = "+fmt(cbrCnyRub,6)+" RUB；CFETS 1 CNY = "+fmt(cfetsCnyRub,6)+" RUB；差异 "+fmt(Math.abs(diff),4)+"%。";
+  }else{
+   comparison="CNY/RUB核验：俄罗斯央行日期 "+latest.date+" 为 "+fmt(cbrCnyRub,6)+" RUB/CNY；CFETS日期 "+(cfets.date||"—")+" 为 "+fmt(cfetsCnyRub,6)+" RUB/CNY。日期不同，不直接比较偏差。";
   }
  }
- $("dataStatus").textContent="CFETS数据日期："+latest.date+"；"+comparison+" 英镑采用CFETS人民币兑英镑中间价。官方参考价不是实际收付款成交价，WB结算、支付渠道点差和手续费可能不同。";
+ $("dataStatus").textContent="主数据：俄罗斯央行官方汇率，日期 "+latest.date+"；"+comparison+" 英镑采用俄罗斯央行公布的GBP/RUB官方参考价进行交叉计算，并非英国央行官方报价。所有官方参考价均不等于实际收付款成交价，WB结算、支付渠道点差和手续费可能不同。";
 }
 function drawChart(canvas,arr){
  const ctx=canvas.getContext("2d");
@@ -159,7 +156,7 @@ function renderCharts(){
  let available=0;
  targets.forEach(code=>{
   const points=rows.map(row=>{
-   const value=rateFromPairs(row.pairs||{},base,code);
+   const value=rateFromHistory(row,base,code);
    return Number.isFinite(value)&&value>0?{date:row.date,value:value}:null;
   }).filter(Boolean);
   if(points.length)available++;
