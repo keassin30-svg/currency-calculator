@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "updated_at_utc": "2026-11-20T10:01:04+00:00",
+  "updated_at_utc": "2026-11-20T10:01:23+00:00",
   "source_name": "Bank of Russia official daily exchange rates",
   "source_url": "https://www.cbr.ru/eng/currency_base/daily/",
   "source_api": "https://www.cbr.ru/scripts/XML_daily_eng.asp",
