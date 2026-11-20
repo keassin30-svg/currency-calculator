@@ -1,0 +1,43 @@
+name: Update official FX reference rates
+
+on:
+  schedule:
+    # CFETS normally publishes the daily RMB central parity after 09:15 China time.
+    - cron: "30 2 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/update-official-rates.yml"
+      - "scripts/update_rates.py"
+
+permissions:
+  contents: write
+
+jobs:
+  update-rates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Fetch official reference rates and history
+        run: python scripts/update_rates.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/latest.json data/history.json
+          if git diff --cached --quiet; then
+            echo "No rate data changes."
+          else
+            git commit -m "Update official FX reference rates"
+            git push
+          fi
