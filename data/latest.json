@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-20",
+  "updated_at_utc": "2026-11-20T09:56:05+00:00",
+  "source_name": "China Foreign Exchange Trade System (CFETS), authorized by the People's Bank of China",
+  "source_url": "https://www.chinamoney.com.cn/english/bmkcpr/",
+  "source_api": "https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/fx/ccpr.json",
+  "source_timestamp": "2026-11-20 9:15",
+  "quote_method": "Official CNY central parity; other currency pairs are cross-rates derived from the same-day CNY parity.",
+  "pairs": {
+    "USD/CNY": 6.7131,
+    "EUR/CNY": 7.3446,
+    "GBP/CNY": 8.7634,
+    "CNY/RUB": 12.2612
+  },
+  "cny_per_unit": {
+    "CNY": 1.0,
+    "USD": 6.7131,
+    "EUR": 7.3446,
+    "GBP": 8.7634,
+    "RUB": 0.08155808566861318
+  },
+  "rates": {
+    "CNY": {
+      "rub": 12.2612,
+      "gbp": 0.11411096149896158,
+      "usd": 0.14896247635220689,
+      "eur": 0.13615445361217765
+    },
+    "RUB": {
+      "cny": 0.08155808566861318,
+      "gbp": 0.009306671573660129,
+      "usd": 0.012149094407742055,
+      "eur": 0.011104496591865205
+    },
+    "GBP": {
+      "cny": 8.7634,
+      "rub": 107.44980008000002,
+      "usd": 1.30541776526493,
+      "eur": 1.1931759387849579
+    },
+    "USD": {
+      "cny": 6.7131,
+      "rub": 82.31066172,
+      "gbp": 0.766038295638679,
+      "eur": 0.9140184625439098
+    },
+    "EUR": {
+      "cny": 7.3446,
+      "rub": 90.05360952000001,
+      "gbp": 0.8380993678252732,
+      "usd": 1.0940698038164187
+    }
+  },
+  "cbr_reference": {
+    "date": "2026-11-20",
+    "rub_per_unit": {
+      "GBP": 1077202.0,
+      "USD": 819290.0,
+      "EUR": 898597.0,
+      "CNY": 122546.0
+    },
+    "source": "Bank of Russia official daily exchange rates",
+    "url": "https://www.cbr.ru/eng/currency_base/daily/"
+  },
+  "notes": [
+    "CFETS is authorized by the People's Bank of China to publish RMB central parity rates.",
+    "Bank of Russia official rates are shown as an independent RUB cross-check when available.",
+    "The Bank of England states that its database exchange rates are not official; GBP uses the CFETS CNY/GBP central parity.",
+    "Reference rates are not bank, payment-provider, or marketplace settlement quotes."
+  ]
+}
