@@ -1,71 +1,65 @@
 {
   "date": "2026-11-20",
-  "updated_at_utc": "2026-11-20T09:57:03.052Z",
-  "source_name": "China Foreign Exchange Trade System (CFETS), authorized by the People's Bank of China",
-  "source_url": "https://www.chinamoney.com.cn/english/bmkcpr/",
-  "source_api": "https://www.chinamoney.com.cn/r/cms/www/chinamoney/data/fx/ccpr.json",
-  "source_timestamp": "2026-11-20 9:15",
-  "quote_method": "Official CNY central parity; other currency pairs are cross-rates derived from the same-day CNY parity.",
-  "pairs": {
-    "USD/CNY": 6.7131,
-    "EUR/CNY": 7.3446,
-    "GBP/CNY": 8.7634,
-    "CNY/RUB": 12.2612
-  },
-  "cny_per_unit": {
-    "CNY": 1,
-    "USD": 6.7131,
-    "EUR": 7.3446,
-    "GBP": 8.7634,
-    "RUB": 0.08155808566861318
+  "updated_at_utc": "2026-11-20T10:01:04+00:00",
+  "source_name": "Bank of Russia official daily exchange rates",
+  "source_url": "https://www.cbr.ru/eng/currency_base/daily/",
+  "source_api": "https://www.cbr.ru/scripts/XML_daily_eng.asp",
+  "quote_method": "Official daily rates of CNY, GBP, USD and EUR against RUB; all other pairs are cross-rates derived from the same-day RUB rates.",
+  "rub_per_unit": {
+    "GBP": 107.7202,
+    "USD": 81.929,
+    "EUR": 89.8597,
+    "CNY": 12.2546,
+    "RUB": 1.0
   },
   "rates": {
     "CNY": {
-      "rub": 12.2612,
-      "gbp": 0.11411096149896158,
-      "usd": 0.14896247635220689,
-      "eur": 0.13615445361217765
+      "rub": 12.2546,
+      "gbp": 0.11376324960406682,
+      "usd": 0.1495758522623247,
+      "eur": 0.13637481540668397
     },
     "RUB": {
-      "cny": 0.08155808566861318,
-      "gbp": 0.009306671573660129,
-      "usd": 0.012149094407742055,
-      "eur": 0.011104496591865205
+      "cny": 0.081602010673543,
+      "gbp": 0.009283309908447997,
+      "usd": 0.01220569029281451,
+      "eur": 0.011128459142418681
     },
     "GBP": {
-      "cny": 8.7634,
-      "rub": 107.44980008000002,
-      "usd": 1.30541776526493,
-      "eur": 1.1931759387849579
+      "cny": 8.790184910156187,
+      "rub": 107.7202,
+      "usd": 1.3147993994800375,
+      "eur": 1.1987598445131689
     },
     "USD": {
-      "cny": 6.7131,
-      "rub": 82.31066172,
-      "gbp": 0.766038295638679,
-      "eur": 0.9140184625439098
+      "cny": 6.685571132472704,
+      "rub": 81.929,
+      "gbp": 0.7605722974892359,
+      "eur": 0.9117435290792202
     },
     "EUR": {
-      "cny": 7.3446,
-      "rub": 90.05360952000001,
-      "gbp": 0.8380993678252732,
-      "usd": 1.0940698038164187
+      "cny": 7.332732198521372,
+      "rub": 89.8597,
+      "gbp": 0.8341954433801645,
+      "usd": 1.096799668005224
     }
   },
-  "cbr_reference": {
+  "cfets_reference": {
     "date": "2026-11-20",
-    "rub_per_unit": {
-      "CNY": 12.2546,
-      "USD": 81.929,
-      "EUR": 89.8597,
-      "GBP": 107.7202
-    },
-    "source": "Bank of Russia official daily exchange rates",
-    "url": "https://www.cbr.ru/eng/currency_base/daily/"
+    "timestamp": "2026-11-20 9:15",
+    "source_name": "China Foreign Exchange Trade System (CFETS), authorized by the People's Bank of China",
+    "source_url": "https://www.chinamoney.com.cn/english/bmkcpr/",
+    "pairs": {
+      "USD/CNY": 6.7131,
+      "EUR/CNY": 7.3446,
+      "GBP/CNY": 8.7634,
+      "CNY/RUB": 12.2612
+    }
   },
   "notes": [
-    "CFETS is authorized by the People's Bank of China to publish RMB central parity rates.",
-    "Bank of Russia official rates are shown as an independent RUB cross-check when available.",
-    "The Bank of England states that its database exchange rates are not official; GBP uses the CFETS CNY/GBP central parity.",
+    "Bank of Russia official daily exchange rates are the primary calculation source.",
+    "CFETS RMB central parity is displayed as an independent PBOC-authorized reference for CNY pairs.",
+    "The Bank of England states that its database exchange rates are not official; this page does not label GBP as a Bank of England official rate.",
     "Reference rates are not bank, payment-provider, or marketplace settlement quotes."
   ]
 }
