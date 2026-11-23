@@ -1,7 +1,7 @@
 {
   "source_name": "Bank of Russia historical official daily exchange rates",
   "source_url": "https://www.cbr.ru/eng/currency_base/daily/",
-  "updated_at_utc": "2026-11-20T10:03:45+00:00",
+  "updated_at_utc": "2026-11-23T03:22:33+00:00",
   "records": [
     {
       "date": "2026-10-06",
@@ -298,6 +298,15 @@
         "USD": 81.929,
         "EUR": 89.8597,
         "GBP": 107.7202
+      }
+    },
+    {
+      "date": "2026-11-21",
+      "rub_per_unit": {
+        "USD": 82.1911,
+        "EUR": 90.3445,
+        "GBP": 107.8265,
+        "CNY": 12.2759
       }
     }
   ]
