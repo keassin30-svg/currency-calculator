@@ -1,59 +1,59 @@
 {
-  "date": "2026-11-21",
-  "updated_at_utc": "2026-11-23T03:22:30+00:00",
+  "date": "2026-11-24",
+  "updated_at_utc": "2026-11-24T03:18:25+00:00",
   "source_name": "Bank of Russia official daily exchange rates",
   "source_url": "https://www.cbr.ru/eng/currency_base/daily/",
   "source_api": "https://www.cbr.ru/scripts/XML_daily_eng.asp",
   "quote_method": "Official daily rates of CNY, GBP, USD and EUR against RUB; all other pairs are cross-rates derived from the same-day RUB rates.",
   "rub_per_unit": {
-    "GBP": 107.8265,
-    "USD": 82.1911,
-    "EUR": 90.3445,
-    "CNY": 12.2759,
+    "GBP": 107.6314,
+    "USD": 82.1488,
+    "EUR": 90.2815,
+    "CNY": 12.2615,
     "RUB": 1.0
   },
   "rates": {
     "CNY": {
-      "rub": 12.2759,
-      "gbp": 0.11384863646691676,
-      "usd": 0.14935802051560326,
-      "eur": 0.1358787751329633
+      "rub": 12.2615,
+      "gbp": 0.11392121629933272,
+      "usd": 0.1492596361724091,
+      "eur": 0.13581409258818253
     },
     "RUB": {
-      "cny": 0.08146042245375085,
-      "gbp": 0.009274158022378543,
-      "usd": 0.012166767448057027,
-      "eur": 0.011068742424829404
+      "cny": 0.08155609020103577,
+      "gbp": 0.009290968992320086,
+      "usd": 0.012173032351050777,
+      "eur": 0.011076466385693637
     },
     "GBP": {
-      "cny": 8.783592241709366,
-      "rub": 107.8265,
-      "usd": 1.311899950237921,
-      "eur": 1.1935037550708676
+      "cny": 8.77799616686376,
+      "rub": 107.6314,
+      "usd": 1.3102005141888866,
+      "eur": 1.192175584145146
     },
     "USD": {
-      "cny": 6.695321727938482,
-      "rub": 82.1911,
-      "gbp": 0.7622532494331171,
-      "eur": 0.9097521155133961
+      "cny": 6.699734942706846,
+      "rub": 82.1488,
+      "gbp": 0.7632419535563042,
+      "eur": 0.9099184218250693
     },
     "EUR": {
-      "cny": 7.359501136372893,
-      "rub": 90.3445,
-      "gbp": 0.8378691694527783,
-      "usd": 1.0992005217109881
+      "cny": 7.36300615748481,
+      "rub": 90.2815,
+      "gbp": 0.8388026170801457,
+      "usd": 1.0989996202013907
     }
   },
   "cfets_reference": {
-    "date": "2026-11-23",
-    "timestamp": "2026-11-23 9:15",
+    "date": "2026-11-24",
+    "timestamp": "2026-11-24 9:15",
     "source_name": "China Foreign Exchange Trade System (CFETS), authorized by the People's Bank of China",
     "source_url": "https://www.chinamoney.com.cn/english/bmkcpr/",
     "pairs": {
-      "USD/CNY": 6.712,
-      "EUR/CNY": 7.3496,
-      "GBP/CNY": 8.7695,
-      "CNY/RUB": 12.2811
+      "USD/CNY": 6.7111,
+      "EUR/CNY": 7.3008,
+      "GBP/CNY": 8.725,
+      "CNY/RUB": 12.2703
     }
   },
   "notes": [
